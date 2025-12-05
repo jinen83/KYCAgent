@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KYC Agent Demo – Self‑Contained</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #0f172a;
+      --bg-surface: #1e293b;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.3);
+      --text-primary: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --ok: #4ade80;
+      --border-subtle: #1f2937;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 60%, #020617 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1120px;
+      background: linear-gradient(145deg, #020617 0%, #020617 45%, #020617 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      box-shadow:
+        0 40px 80px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      padding: 24px 24px 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: minmax(0, 1fr);
+        max-height: none;
+        overflow: visible;
+      }
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 12px;
+      font-size: 11px;
+      color: var(--accent);
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.16), transparent 60%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+    }
+
+    /* Left panel */
+    .left-panel {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 60%);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      padding: 16px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .scenario-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-muted);
+    }
+
+    .scenario-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 10px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-delta {
+      font-size: 11px;
+      margin-top: 2px;
+      color: var(--ok);
+    }
+
+    .divider {
+      height: 1px;
+      background: radial-gradient(circle, rgba(148, 163, 184, 0.25), transparent 70%);
+      margin: 4px 0 6px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .controls-left {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      color: #0b1120;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4), 0 12px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6), 0 16px 40px rgba(15, 23, 42, 1);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text-primary);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(248, 250, 252, 0.9);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .progress-block {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 10px 10px 8px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-shell {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 1), rgba(15, 23, 42, 1));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8, #22c55e, #a855f7);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+      transition: width 0.18s ease-out;
+    }
+
+    .progress-bar-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.7), transparent 60%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    /* Right panel */
+    .right-panel {
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 60%);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      padding: 14px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .panel-heading span {
+      color: var(--text-muted);
+    }
+
+    .log-window {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .log-lines {
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .log-line {
+      margin-bottom: 4px;
+      white-space: pre-wrap;
+    }
+
+    .log-line .time {
+      color: #4b5563;
+      margin-right: 6px;
+    }
+
+    .log-line .tag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 999px;
+      margin-right: 6px;
+    }
+
+    .tag-system {
+      background: rgba(148, 163, 184, 0.16);
+      color: #e5e7eb;
+    }
+
+    .tag-kyc {
+      background: rgba(56, 189, 248, 0.18);
+      color: #7dd3fc;
+    }
+
+    .tag-risk {
+      background: rgba(244, 63, 94, 0.2);
+      color: #fecaca;
+    }
+
+    .tag-ok {
+      background: rgba(22, 163, 74, 0.2);
+      color: #bbf7d0;
+    }
+
+    .log-fade-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.98), transparent);
+      pointer-events: none;
+    }
+
+    .log-fade-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 16px;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.98), transparent);
+      pointer-events: none;
+    }
+
+    .risk-strip {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .risk-chip {
+      flex: 1;
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    .risk-chip strong {
+      color: var(--text-primary);
+    }
+
+    .link-row {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .link-row a {
+      color: var(--accent);
+      text-decoration: none;
+      opacity: 0.8;
+    }
+
+    .link-row a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title-block">
+      <div class="eyebrow">Agentic KYC · Live Simulation</div>
+      <h1>KYC Agent: 10,000 Customers in One Run</h1>
+      <p class="subtitle">
+        Watch an autonomous KYC agent fetch data, run checks, and update records end‑to‑end —
+        no manual spreadsheet work, no copy‑paste between systems.
+      </p>
+    </div>
+    <div class="pill">
+      <span class="pill-dot"></span>
+      <span>Autonomous · Audit‑ready · Human‑in‑the‑loop</span>
+    </div>
+  </div>
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div>
+      <div class="scenario-title">
+        <span>KYC Refresh for Retail & SME Customers</span>
+        <span class="badge">Banking · Fintech</span>
+      </div>
+      <p class="scenario-body">
+        The KYC agent takes a batch of <strong>10,000 customers</strong>, pulls their data from core banking and CRM,
+        runs sanctions & PEP screening, and updates statuses — escalating only edge cases to analysts.
+      </p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Batch size</div>
+        <div class="stat-value" id="stat-batch">10,000 customers</div>
+        <div class="stat-delta">Coverage: 100%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg handling time</div>
+        <div class="stat-value" id="stat-aht">02:00:00 → 00:04:00</div>
+        <div class="stat-delta">~97% faster vs manual</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Manual touchpoints</div>
+        <div class="stat-value" id="stat-manual">12,000 → 320</div>
+        <div class="stat-delta">Analyst focus on exceptions only</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="controls">
+      <div class="controls-left">
+        <button id="runBtn" class="btn-primary">
+          ▶ Run KYC Agent
+        </button>
+        <button id="resetBtn" class="btn-secondary">
+          ⟲ Reset
+        </button>
+      </div>
+      <div class="hint" id="statusText">
+        Idle · Press “Run KYC Agent” to start a full batch.
+      </div>
+    </div>
+
+    <div class="progress-block">
+      <div class="progress-header">
+        <span id="progressLabel">No batch running</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-shell">
+        <div class="progress-bar-fill" id="progressFill"></div>
+        <div class="progress-bar-glow"></div>
+      </div>
+      <div class="progress-meta">
+        <span id="progressMetaLeft">Customers processed: 0 / 10,000</span>
+        <span id="progressMetaRight">High‑risk flagged for review: 0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="panel-heading">
+      <span>Real‑time KYC agent log</span>
+      <span id="runTag">Status: Idle</span>
+    </div>
+    <div class="log-window">
+      <div class="log-fade-top"></div>
+      <div class="log-lines" id="logLines"></div>
+      <div class="log-fade-bottom"></div>
+    </div>
+
+    <div class="risk-strip">
+      <div class="risk-chip">
+        <span>Low‑risk auto‑approved</span>
+        <span><strong id="lowRiskCount">0</strong></span>
+      </div>
+      <div class="risk-chip">
+        <span>Medium‑risk with extra checks</span>
+        <span><strong id="medRiskCount">0</strong></span>
+      </div>
+      <div class="risk-chip">
+        <span>High‑risk escalated</span>
+        <span><strong id="highRiskCount">0</strong></span>
+      </div>
+    </div>
+
+    <div class="link-row">
+      <a href="#" onclick="event.preventDefault(); alert('Hook this to your detailed KYC playbook or case study.');">
+        View a sample KYC playbook →
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const runBtn = document.getElementById('runBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const statusText = document.getElementById('statusText');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const progressPercent = document.getElementById('progressPercent');
+  const progressMetaLeft = document.getElementById('progressMetaLeft');
+  const progressMetaRight = document.getElementById('progressMetaRight');
+  const logLines = document.getElementById('logLines');
+  const runTag = document.getElementById('runTag');
+
+  const lowRiskCountEl = document.getElementById('lowRiskCount');
+  const medRiskCountEl = document.getElementById('medRiskCount');
+  const highRiskCountEl = document.getElementById('highRiskCount');
+
+  const BATCH_SIZE = 10000;
+  let processed = 0;
+  let highRisk = 0;
+  let medRisk = 0;
+  let lowRisk = 0;
+  let running = false;
+  let currentTimeouts = [];
+
+  function addLogLine(message, type = 'system') {
+    const line = document.createElement('div');
+    line.className = 'log-line';
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'time';
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    timeSpan.textContent = '[' + hh + ':' + mm + ':' + ss + ']';
+
+    const tagSpan = document.createElement('span');
+    let tagClass = 'tag-system';
+    let tagText = 'SYSTEM';
+    if (type === 'kyc') {
+      tagClass = 'tag-kyc';
+      tagText = 'KYC';
+    } else if (type === 'risk') {
+      tagClass = 'tag-risk';
+      tagText = 'RISK';
+    } else if (type === 'ok') {
+      tagClass = 'tag-ok';
+      tagText = 'OK';
+    }
+    tagSpan.className = 'tag ' + tagClass;
+    tagSpan.textContent = tagText;
+
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = ' ' + message;
+
+    line.appendChild(timeSpan);
+    line.appendChild(tagSpan);
+    line.appendChild(msgSpan);
+    logLines.appendChild(line);
+    logLines.scrollTop = logLines.scrollHeight;
+  }
+
+  function resetDemo() {
+    running = false;
+    processed = 0;
+    highRisk = 0;
+    medRisk = 0;
+    lowRisk = 0;
+
+    currentTimeouts.forEach(clearTimeout);
+    currentTimeouts = [];
+
+    progressFill.style.width = '0%';
+    progressLabel.textContent = 'No batch running';
+    progressPercent.textContent = '0%';
+    progressMetaLeft.textContent = 'Customers processed: 0 / ' + BATCH_SIZE.toLocaleString();
+    progressMetaRight.textContent = 'High‑risk flagged for review: 0';
+    lowRiskCountEl.textContent = '0';
+    medRiskCountEl.textContent = '0';
+    highRiskCountEl.textContent = '0';
+
+    runTag.textContent = 'Status: Idle';
+    statusText.textContent = 'Idle · Press “Run KYC Agent” to start a full batch.';
+    logLines.innerHTML = '';
+  }
+
+  function simulateRun() {
+    if (running) return;
+    resetDemo();
+    running = true;
+    runTag.textContent = 'Status: Running';
+    statusText.textContent = 'Running batch… agent is fetching data, screening, and updating records.';
+
+    addLogLine('Launching KYC batch job for 10,000 retail & SME customers.', 'system');
+    addLogLine('Connecting to core banking, CRM, and document archive…', 'system');
+    addLogLine('Pulling latest customer profile snapshots and historical docs…', 'kyc');
+
+    currentTimeouts.push(setTimeout(() => {
+      addLogLine('Starting identity verification and address checks in parallel.', 'kyc');
+      addLogLine('Streaming customer IDs into sanctions & PEP screening engine.', 'risk');
+    }, 800));
+
+    currentTimeouts.push(setTimeout(() => {
+      addLogLine('Enabling human‑in‑the‑loop mode for high‑risk / PEP candidates.', 'risk');
+    }, 1600));
+
+    const chunks = 20;
+    const customersPerChunk = BATCH_SIZE / chunks;
+
+    for (let i = 1; i <= chunks; i++) {
+      currentTimeouts.push(setTimeout(() => {
+        if (!running) return;
+
+        const isFinal = i === chunks;
+        processed = Math.min(BATCH_SIZE, processed + customersPerChunk);
+
+        const chunkLow = Math.round(customersPerChunk * 0.86);
+        const chunkMed = Math.round(customersPerChunk * 0.12);
+        const chunkHigh = Math.round(customersPerChunk * 0.02);
+
+        lowRisk += chunkLow;
+        medRisk += chunkMed;
+        highRisk += chunkHigh;
+
+        const pct = Math.round((processed / BATCH_SIZE) * 100);
+        progressFill.style.width = pct + '%';
+        progressPercent.textContent = pct + '%';
+        progressLabel.textContent = isFinal ? 'Batch completed' : 'Processing customer batch…';
+
+        progressMetaLeft.textContent = 'Customers processed: ' +
+          processed.toLocaleString() + ' / ' + BATCH_SIZE.toLocaleString();
+        progressMetaRight.textContent = 'High‑risk flagged for review: ' + highRisk.toLocaleString();
+        lowRiskCountEl.textContent = lowRisk.toLocaleString();
+        medRiskCountEl.textContent = medRisk.toLocaleString();
+        highRiskCountEl.textContent = highRisk.toLocaleString();
+
+        const sampleCustomerId = 'CUST-' + String(100000 + i * 37);
+        if (i === 3) {
+          addLogLine('OCR complete for 2,000+ identity documents, extracting names, DOB, and addresses.', 'kyc');
+        } else if (i === 6) {
+          addLogLine('Found inconsistent address data for subset of SME customers — normalizing and re‑checking.', 'kyc');
+        } else if (i === 9) {
+          addLogLine('PEP list updated mid‑run — re‑screening impacted entities automatically.', 'risk');
+        } else if (i === 13) {
+          addLogLine('Sanctions engine returned potential match for ' + sampleCustomerId + ' — escalating to human reviewer.', 'risk');
+        } else if (i === 16) {
+          addLogLine('Auto‑closing low‑risk cases and writing approvals back to core banking system.', 'ok');
+        } else if (i === 19) {
+          addLogLine('Producing full audit trail: who was screened, which lists, timestamps, and decision rationale.', 'system');
+        }
+
+        if (isFinal) {
+          running = false;
+          runTag.textContent = 'Status: Completed';
+          statusText.textContent = 'Batch completed · Low‑risk customers auto‑approved, high‑risk routed to analysts.';
+          addLogLine('Batch complete: 10,000 customers processed in under 10 simulated minutes.', 'ok');
+          addLogLine('9,000+ low‑risk customers auto‑approved; high‑risk cases routed with full context.', 'ok');
+        }
+      }, 2200 + i * 260));
+    }
+  }
+
+  runBtn.addEventListener('click', simulateRun);
+  resetBtn.addEventListener('click', resetDemo);
+</script>
+</body>
+</html>
