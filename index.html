@@ -1,710 +1,851 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>KYC Agent Demo – Self‑Contained</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --bg: #020617;
-      --bg-elevated: #0f172a;
-      --bg-surface: #1e293b;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.3);
-      --text-primary: #e5e7eb;
-      --text-muted: #9ca3af;
-      --danger: #f97373;
-      --ok: #4ade80;
-      --border-subtle: #1f2937;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI for Operations</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        /* Theme Variables */
+        :root {
+          --font-family-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          --font-weight-display: 700;
+          --font-family-content: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          --font-weight-content: 400;
+          --font-size-content: 16px;
+          --line-height-content: 1.5;
+        }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 60%, #020617 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
+        /* DARK THEME */
+        body.theme-dark {
+          --color-bg-base: #0f172a;
+          --color-bg-elevated: #020617;
+          --color-bg-surface: #1e293b;
+          --color-bg-muted: #334155;
+          --color-text-primary: #f1f5f9;
+          --color-text-secondary: #cbd5e1;
+          --color-text-muted: #94a3b8;
+          --color-text-accent: #38bdf8;
+          --color-primary: #38bdf8;
+          --color-primary-foreground: #0f172a;
+        }
 
-    .app {
-      width: 100%;
-      max-width: 1120px;
-      background: linear-gradient(145deg, #020617 0%, #020617 45%, #020617 100%);
-      border-radius: 24px;
-      border: 1px solid rgba(148, 163, 184, 0.15);
-      box-shadow:
-        0 40px 80px rgba(15, 23, 42, 0.9),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
-      padding: 24px 24px 20px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
-      gap: 20px;
-    }
+        /* Base Styles */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
 
-    @media (max-width: 900px) {
-      .app {
-        grid-template-columns: minmax(0, 1fr);
-        max-height: none;
-        overflow: visible;
-      }
-    }
+        body {
+          font-family: var(--font-family-content);
+          font-weight: var(--font-weight-content);
+          font-size: var(--font-size-content);
+          line-height: var(--line-height-content);
+          overflow-x: hidden;
+        }
 
-    .header {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
+        /* Slide Container */
+        .slide {
+          width: 960px;
+          height: 540px;
+          margin: 0 auto 20px;
+          display: flex;
+          flex-shrink: 0;
+          position: relative;
+          overflow: hidden;
+        }
 
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+        /* Layout Utilities */
+        .row { flex-direction: row; }
+        .col { flex-direction: column; }
+        .center {
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+        }
+        .space-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .items-end { align-items: flex-end; }
+        .fill-width { flex: 1; }
+        .fill-height { flex: 1; display: flex; flex-direction: column; }
 
-    .eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
+        /* Spacing */
+        .gap-sm { gap: 0.5rem; }
+        .gap-md { gap: 1rem; }
+        .gap-lg { gap: 1.5rem; }
+        .gap-xl { gap: 2rem; }
+        .gap-2xl { gap: 3rem; }
 
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--accent);
-    }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .p-12 { padding: 3rem; }
+        .p-16 { padding: 4rem; }
 
-    .subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
-      max-width: 520px;
-    }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
 
-    .pill {
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      padding: 6px 12px;
-      font-size: 11px;
-      color: var(--accent);
-      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.16), transparent 60%);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mt-12 { margin-top: 3rem; }
 
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
-    }
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+          font-family: var(--font-family-display);
+          font-weight: var(--font-weight-display);
+          line-height: 1.2;
+          margin: 0;
+        }
 
-    /* Left panel */
-    .left-panel {
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 60%);
-      border-radius: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      padding: 16px 16px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+        h1 { font-size: 3rem; }
+        h2 { font-size: 2.25rem; }
+        h3 { font-size: 1.75rem; }
+        h4 { font-size: 1.5rem; }
+        h5 { font-size: 1.25rem; }
+        h6 { font-size: 1rem; }
 
-    .scenario-title {
-      font-size: 15px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+        .text-6xl { font-size: 3.75rem; }
+        .text-5xl { font-size: 3rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-base { font-size: 1rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
 
-    .badge {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      color: var(--text-muted);
-    }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .font-normal { font-weight: 400; }
 
-    .scenario-body {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
 
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 4px;
-    }
+        .opacity-90 { opacity: 0.9; }
+        .opacity-80 { opacity: 0.8; }
+        .opacity-70 { opacity: 0.7; }
+        .opacity-60 { opacity: 0.6; }
 
-    .stat-card {
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 12px;
-      border: 1px solid var(--border-subtle);
-      padding: 8px 10px;
-    }
+        /* Lists */
+        ul, ol {
+          margin-left: 2rem;
+          line-height: 1.8;
+        }
 
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-    }
+        ul li { list-style: disc; }
+        ol li { list-style: decimal; }
 
-    .stat-value {
-      font-size: 14px;
-      font-weight: 600;
-    }
+        li { margin-bottom: 0.75rem; }
+        li:last-child { margin-bottom: 0; }
 
-    .stat-delta {
-      font-size: 11px;
-      margin-top: 2px;
-      color: var(--ok);
-    }
+        /* Card Styles */
+        .card-rect {
+          padding: 2rem;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    .divider {
-      height: 1px;
-      background: radial-gradient(circle, rgba(148, 163, 184, 0.25), transparent 70%);
-      margin: 4px 0 6px;
-    }
+        .card-rect:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 24px rgba(56, 189, 248, 0.15);
+        }
 
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+        /* Chat Window Styles */
+        .chat-window {
+          background: linear-gradient(135deg, #0f172a 0%, #1a2a4a 100%);
+          border: 1px solid #38bdf8;
+          border-radius: 16px;
+          padding: 1.5rem;
+          height: 100%;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          box-shadow: 0 8px 32px rgba(56, 189, 248, 0.1);
+          backdrop-filter: blur(10px);
+        }
 
-    .controls-left {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+        .message {
+          display: flex;
+          margin-bottom: 0.75rem;
+          gap: 0.75rem;
+          animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
+        @keyframes slideIn {
+          from { 
+            opacity: 0; 
+            transform: translateY(12px);
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0);
+          }
+        }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #0ea5e9);
-      color: #0b1120;
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4), 0 12px 30px rgba(15, 23, 42, 0.9);
-    }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6), 0 16px 40px rgba(15, 23, 42, 1);
-    }
+        .message.user {
+          justify-content: flex-end;
+        }
 
-    .btn-secondary {
-      background: rgba(15, 23, 42, 0.95);
-      color: var(--text-primary);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-    }
+        .message.user .bubble {
+          background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+          color: #0f172a;
+          font-weight: 600;
+          box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+        }
 
-    .btn-secondary:hover {
-      border-color: rgba(248, 250, 252, 0.9);
-    }
+        .message.agent {
+          justify-content: flex-start;
+        }
 
-    .hint {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+        .message.agent .bubble {
+          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+          color: #f1f5f9;
+          border: 1px solid rgba(56, 189, 248, 0.3);
+          box-shadow: 0 4px 12px rgba(56, 189, 248, 0.08);
+        }
 
-    .progress-block {
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      padding: 10px 10px 8px;
-      font-size: 11px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+        .bubble {
+          max-width: 85%;
+          padding: 0.875rem 1.25rem;
+          border-radius: 16px;
+          font-size: 0.85rem;
+          line-height: 1.6;
+          word-wrap: break-word;
+          transition: all 0.2s ease;
+          font-weight: 500;
+        }
 
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text-muted);
-    }
+        .bubble:hover {
+          transform: scale(1.02);
+        }
 
-    .progress-bar-shell {
-      width: 100%;
-      height: 6px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(15, 23, 42, 1), rgba(15, 23, 42, 1));
-      overflow: hidden;
-      position: relative;
-    }
+        .message-label {
+          font-size: 0.7rem;
+          color: #94a3b8;
+          margin-bottom: 0.25rem;
+          text-transform: uppercase;
+          font-weight: 600;
+        }
 
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #38bdf8, #22c55e, #a855f7);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
-      transition: width 0.18s ease-out;
-    }
+        .bubble strong {
+          color: #38bdf8;
+        }
 
-    .progress-bar-glow {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.7), transparent 60%);
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
+        .message.agent .bubble strong {
+          color: #38bdf8;
+        }
 
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      color: var(--text-muted);
-    }
+        .result-badge {
+          display: inline-block;
+          padding: 0.35rem 0.9rem;
+          border-radius: 8px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          margin: 0.5rem 0;
+          letter-spacing: 0.5px;
+          transition: all 0.2s ease;
+          animation: fadeIn 0.4s ease-out;
+        }
 
-    /* Right panel */
-    .right-panel {
-      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 60%);
-      border-radius: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      padding: 14px 14px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+        .result-badge:hover {
+          transform: scale(1.05);
+        }
 
-    .panel-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-    }
+        .result-badge.success {
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+          color: #dcfce7;
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
 
-    .panel-heading span {
-      color: var(--text-muted);
-    }
+        .result-badge.warning {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: #fcd34d;
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
 
-    .log-window {
-      flex: 1;
-      background: rgba(15, 23, 42, 0.96);
-      border-radius: 12px;
-      border: 1px solid rgba(15, 23, 42, 0.9);
-      padding: 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .log-lines {
-      max-height: 260px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .log-line {
-      margin-bottom: 4px;
-      white-space: pre-wrap;
-    }
-
-    .log-line .time {
-      color: #4b5563;
-      margin-right: 6px;
-    }
-
-    .log-line .tag {
-      font-size: 10px;
-      padding: 1px 5px;
-      border-radius: 999px;
-      margin-right: 6px;
-    }
-
-    .tag-system {
-      background: rgba(148, 163, 184, 0.16);
-      color: #e5e7eb;
-    }
-
-    .tag-kyc {
-      background: rgba(56, 189, 248, 0.18);
-      color: #7dd3fc;
-    }
-
-    .tag-risk {
-      background: rgba(244, 63, 94, 0.2);
-      color: #fecaca;
-    }
-
-    .tag-ok {
-      background: rgba(22, 163, 74, 0.2);
-      color: #bbf7d0;
-    }
-
-    .log-fade-top {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 12px;
-      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.98), transparent);
-      pointer-events: none;
-    }
-
-    .log-fade-bottom {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 16px;
-      background: linear-gradient(to top, rgba(15, 23, 42, 0.98), transparent);
-      pointer-events: none;
-    }
-
-    .risk-strip {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 11px;
-      margin-top: 4px;
-    }
-
-    .risk-chip {
-      flex: 1;
-      border-radius: 999px;
-      padding: 4px 8px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text-muted);
-    }
-
-    .risk-chip strong {
-      color: var(--text-primary);
-    }
-
-    .link-row {
-      display: flex;
-      justify-content: flex-end;
-      font-size: 11px;
-      margin-top: 2px;
-    }
-
-    .link-row a {
-      color: var(--accent);
-      text-decoration: none;
-      opacity: 0.8;
-    }
-
-    .link-row a:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-  </style>
+        .result-badge.error {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: #fca5a5;
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+    </style>
 </head>
-<body>
-<div class="app">
-  <div class="header">
-    <div class="title-block">
-      <div class="eyebrow">Agentic KYC · Live Simulation</div>
-      <h1>KYC Agent: 10,000 Customers in One Run</h1>
-      <p class="subtitle">
-        Watch an autonomous KYC agent fetch data, run checks, and update records end‑to‑end —
-        no manual spreadsheet work, no copy‑paste between systems.
-      </p>
+<body class="theme-dark">
+
+  <!-- Slide 1: Title Slide -->
+  <section class="slide p-16 col center" style="background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #134e7b 100%); color: #f1f5f9; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -40%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="margin-bottom: 2rem; position: relative; z-index: 1; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ Logo" style="height: 80px; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(56, 189, 248, 0.4)); transition: all 0.3s ease;">
     </div>
-    <div class="pill">
-      <span class="pill-dot"></span>
-      <span>Autonomous · Audit‑ready · Human‑in‑the‑loop</span>
+    <h1 class="text-6xl mb-4" style="color: #38bdf8; font-weight: 800; letter-spacing: -1px; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;">Agentic AI for Operations</h1>
+    <p class="text-2xl mb-12" style="color: #cbd5e1; font-weight: 600; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;">Transform How You Scale</p>
+    <p class="text-lg" style="color: #94a3b8; letter-spacing: 0.5px; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;">Build Custom Agents in Less Than an Afternoon</p>
+  </section>
+
+  <!-- Slide 2: Part 1 Intro - From Dumb to Intelligent Automation -->
+  <section class="slide p-16 col center" style="background: linear-gradient(135deg, #020617 0%, #0f172a 100%); color: #f1f5f9; position: relative;">
+    <div style="position: absolute; top: -50%; left: -20%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1;">
+      <h1 class="text-5xl mb-6" style="color: #38bdf8; font-weight: 800; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);">PART 1</h1>
+      <h2 class="text-3xl mb-8" style="color: #cbd5e1; font-weight: 700; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;">Plug Intelligence Into Your Dumb Automations</h2>
+      <p class="text-lg" style="color: #94a3b8; letter-spacing: 0.3px; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;">When RPA & basic automation hit a wall, agentic AI fills the gaps</p>
     </div>
-  </div>
+  </section>
 
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-    <div>
-      <div class="scenario-title">
-        <span>KYC Refresh for Retail & SME Customers</span>
-        <span class="badge">Banking · Fintech</span>
-      </div>
-      <p class="scenario-body">
-        The KYC agent takes a batch of <strong>10,000 customers</strong>, pulls their data from core banking and CRM,
-        runs sanctions & PEP screening, and updates statuses — escalating only edge cases to analysts.
-      </p>
+  <!-- Slide 3: AR/AP Operations - Invoice Exception Intelligence -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">AR/AP Operations: The GST & Exception Problem</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
     </div>
+    <div class="row gap-lg" style="flex: 1; overflow: hidden; position: relative; z-index: 1;">
+      <!-- Chat 1: Invoice Exception Detection -->
+      <div class="chat-window">
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">You</div>
+          <div class="message user">
+            <div class="bubble">Check this invoice for GST compliance and exceptions</div>
+          </div>
+        </div>
 
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Batch size</div>
-        <div class="stat-value" id="stat-batch">10,000 customers</div>
-        <div class="stat-delta">Coverage: 100%</div>
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              <strong>Invoice #INV-2024-8472 analyzed</strong><br/>
+              Amount: ₹1,50,000 | Applied GST: 18% (₹27,000)<br/>
+              <span class="result-badge error">⚠️ GST Mismatch Detected</span><br/>
+              PO specifies 5% GST for this vendor, not 18%
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              <strong>Auto-correction applied:</strong><br/>
+              ✓ Adjusted GST from 18% to 5%<br/>
+              ✓ Correct amount: ₹7,500 (not ₹27,000)<br/>
+              <span class="result-badge success">Saved: ₹19,500</span><br/>
+              Flagged for AP review + vendor approval
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="message user">
+            <div class="bubble">What's the impact on our cycle time?</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              <strong>Cycle time impact:</strong><br/>
+              Manual review: 2-3 days<br/>
+              <strong>DronaHQ processing: 12 seconds</strong><br/>
+              <span class="result-badge success">99% faster</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Avg handling time</div>
-        <div class="stat-value" id="stat-aht">02:00:00 → 00:04:00</div>
-        <div class="stat-delta">~97% faster vs manual</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Manual touchpoints</div>
-        <div class="stat-value" id="stat-manual">12,000 → 320</div>
-        <div class="stat-delta">Analyst focus on exceptions only</div>
+
+      <!-- Chat 2: Discount Optimization -->
+      <div class="chat-window">
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">You</div>
+          <div class="message user">
+            <div class="bubble">Should we take the early payment discount on this AP?</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              <strong>AP Payment analyzed</strong><br/>
+              Invoice: ₹2,00,000 | Terms: 2/10 net 30<br/>
+              Early payment discount: ₹4,000 (2%)
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              <strong>Financial analysis:</strong><br/>
+              Current cash position: ₹50,00,000<br/>
+              Discount ROI: ~8% annualized<br/>
+              <span class="result-badge success">✓ Recommendation: Pay early</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              <strong>Action taken:</strong><br/>
+              ✓ Auto-queued for payment on Day 8<br/>
+              ✓ Scheduled wire transfer<br/>
+              <span class="result-badge success">Saves: ₹4,000 this invoice</span><br/>
+              Annual impact: ~₹24,000+
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="message user">
+            <div class="bubble">Perfect. Any fraud flags?</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 0.5rem;">
+          <div class="message-label">DronaHQ Agent</div>
+          <div class="message agent">
+            <div class="bubble">
+              Vendor verification complete ✓<br/>
+              Invoice pattern normal ✓<br/>
+              <span class="result-badge success">No risks detected</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="divider"></div>
-
-    <div class="controls">
-      <div class="controls-left">
-        <button id="runBtn" class="btn-primary">
-          ▶ Run KYC Agent
-        </button>
-        <button id="resetBtn" class="btn-secondary">
-          ⟲ Reset
-        </button>
+  <!-- Slide 4: Sales Operations - Quote-to-Invoice & Collections -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; bottom: 0; left: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">Sales Operations: Quote-to-Cash Bottlenecks</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
+    </div>
+    <div class="row gap-lg" style="flex: 1; overflow-y: auto; position: relative; z-index: 1;">
+      <!-- Simulation 1: Quote-to-Invoice -->
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; overflow-y: auto; max-height: 400px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">📊 Quote-to-Invoice Processor</h3>
+        <button id="simQuote1" onclick="runQuoteDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Process Quote</button>
+        <div id="quoteResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Quote #QT-2024-5621</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Product: Enterprise License | USD 50,000</p>
+          <p style="margin-bottom: 0.5rem;"><span id="invoiceStatus" style="background-color: #22c55e; padding: 0.25rem 0.75rem; border-radius: 4px; color: #dcfce7;">✓ Tiered Discount Applied</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Auto-detected:</strong> 3-year MSA, 15% volume discount, USD/INR conversion</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>DronaHQ Generated:</strong> Invoice with all terms. Error-free.</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">⏱️ <em>Generated in 45 seconds. Manual process: 8 days</em></p>
+        </div>
       </div>
-      <div class="hint" id="statusText">
-        Idle · Press “Run KYC Agent” to start a full batch.
+
+      <!-- Simulation 2: Collections Sequencing -->
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; overflow-y: auto; max-height: 400px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">📞 Smart Collections Agent</h3>
+        <button id="simCollections1" onclick="runCollectionsDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Analyze Account</button>
+        <div id="collectionsResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Customer: TechCorp Inc</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Invoice: ₹25,00,000 | 45 days overdue</p>
+          <p style="margin-bottom: 0.5rem;"><span id="riskLevel" style="background-color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 4px; color: #fcd34d;">⚠️ Medium Risk</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>AI Assessment:</strong> High-value customer, past disputes, payment pattern trend</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Action:</strong> Escalate to rep (not legal). Offer payment plan. Personalized follow-up.</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">📈 <em>Recoverable 92%. Manual: 75%</em></p>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="progress-block">
-      <div class="progress-header">
-        <span id="progressLabel">No batch running</span>
-        <span id="progressPercent">0%</span>
+  <!-- Slide 5: HR Operations India - Compliance Filings -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; top: -30%; right: -10%; width: 350px; height: 350px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">HR Operations: India Compliance Nightmare</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
+    </div>
+    <div class="row gap-lg" style="flex: 1; overflow-y: auto; position: relative; z-index: 1;">
+      <!-- Simulation 1: Compliance Filing -->
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; overflow-y: auto; max-height: 400px;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">📋 Payroll Compliance Analyzer</h3>
+        <button id="simPayroll1" onclick="runPayrollDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Calculate Deductions</button>
+        <div id="payrollResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Employee: Rajesh Kumar</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Salary: ₹7,50,000 | Joined: Apr 2019</p>
+          <p style="margin-bottom: 0.5rem;"><span id="complianceStatus" style="background-color: #22c55e; padding: 0.25rem 0.75rem; border-radius: 4px; color: #dcfce7;">✓ Compliant</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>DronaHQ Calculations:</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ PF: ₹9,000 (12%) | ESI: ₹1,250 (1.75%)</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ TDS: ₹68,542 (budgeted YTD)</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">→ All statutory limits verified ✓</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Auto-filed:</strong> Form 26AS, E-TDS returns</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">✅ <em>Zero audit risk. Instant compliance proof.</em></p>
+        </div>
       </div>
-      <div class="progress-bar-shell">
-        <div class="progress-bar-fill" id="progressFill"></div>
-        <div class="progress-bar-glow"></div>
-      </div>
-      <div class="progress-meta">
-        <span id="progressMetaLeft">Customers processed: 0 / 10,000</span>
-        <span id="progressMetaRight">High‑risk flagged for review: 0</span>
+
+      <!-- Simulation 2: Leave Approval -->
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; overflow-y: auto; max-height: 400px;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">🏖️ Leave Approval Engine</h3>
+        <button id="simLeave1" onclick="runLeaveDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Evaluate Request</button>
+        <div id="leaveResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Request: LTA Availing</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Employee: Priya Singh | Last LTA: 2022</p>
+          <p style="margin-bottom: 0.5rem;"><span id="leaveStatus" style="background-color: #22c55e; padding: 0.25rem 0.75rem; border-radius: 4px; color: #dcfce7;">✓ Eligible & Approved</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>DronaHQ Logic:</strong> Female employee, eligible every 2 years, balance ₹2,50,000</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Policy Check:</strong> LTA encashment rules, PF carryover, tax implications verified</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Suggestion:</strong> Take LTA by Dec 2024 (tax year optimized)</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">⏱️ <em>Processed in 45 seconds. Manual review: 4 hours</em></p>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- RIGHT PANEL -->
-  <div class="right-panel">
-    <div class="panel-heading">
-      <span>Real‑time KYC agent log</span>
-      <span id="runTag">Status: Idle</span>
+  <!-- Slide 6: HR Operations India - Salary Advances -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; bottom: -50%; left: 50%; transform: translateX(-50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">HR Operations: Salary Advances & Loan Processing</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
     </div>
-    <div class="log-window">
-      <div class="log-fade-top"></div>
-      <div class="log-lines" id="logLines"></div>
-      <div class="log-fade-bottom"></div>
-    </div>
-
-    <div class="risk-strip">
-      <div class="risk-chip">
-        <span>Low‑risk auto‑approved</span>
-        <span><strong id="lowRiskCount">0</strong></span>
+    <div class="row gap-lg" style="flex: 1; overflow-y: auto; position: relative; z-index: 1;">
+      <!-- Simulation 1: Salary Advance -->
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; overflow-y: auto; max-height: 400px;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">💵 Advance Auto-Approval</h3>
+        <button id="simAdvance1" onclick="runAdvanceDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Process Request</button>
+        <div id="advanceResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Advance Request: ₹50,000</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Employee: Amit Desai | Salary: ₹6,00,000</p>
+          <p style="margin-bottom: 0.5rem;"><span id="advanceStatus" style="background-color: #22c55e; padding: 0.25rem 0.75rem; border-radius: 4px; color: #dcfce7;">✓ Auto-Approved</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>DronaHQ Verification:</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ 3-year tenure (eligible ✓)</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ No pending advances ✓</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">→ Within 50% monthly salary limit ✓</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Action:</strong> Approved & queued for Finance. Disburse within 2 hours.</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">⏱️ <em>Instant approval. Manual process: 5 days</em></p>
+        </div>
       </div>
-      <div class="risk-chip">
-        <span>Medium‑risk with extra checks</span>
-        <span><strong id="medRiskCount">0</strong></span>
-      </div>
-      <div class="risk-chip">
-        <span>High‑risk escalated</span>
-        <span><strong id="highRiskCount">0</strong></span>
+
+      <!-- Simulation 2: Audit Report -->
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; overflow-y: auto; max-height: 400px;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">📊 Audit Report Generator</h3>
+        <button id="simAudit1" onclick="runAuditDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Generate Report</button>
+        <div id="auditResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Compliance Audit Report</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Period: Jan - Mar 2024 | 120 Employees</p>
+          <p style="margin-bottom: 0.5rem;"><span id="auditStatus" style="background-color: #22c55e; padding: 0.25rem 0.75rem; border-radius: 4px; color: #dcfce7;">✓ 100% Compliant</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>DronaHQ Report Includes:</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ Leave encashment compliance</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ Gratuity calculations verified</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">→ Full audit trail & supporting docs</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Auditor Action:</strong> Auto-signed. Zero follow-up needed.</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">✅ <em>Report generated in 30 mins. Manual: 20 hours</em></p>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="link-row">
-      <a href="#" onclick="event.preventDefault(); alert('Hook this to your detailed KYC playbook or case study.');">
-        View a sample KYC playbook →
-      </a>
+  <!-- Slide 7: AR/AP - Vendor Master Intelligence -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; top: -40%; left: -20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">AR/AP: Vendor Master Data Chaos</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
     </div>
-  </div>
-</div>
+    <div class="fill-height" style="position: relative; z-index: 1;">
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">🔍 Vendor Consolidation Engine</h3>
+        <button id="simVendor1" onclick="runVendorDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Scan Master Data</button>
+        <div id="vendorResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Duplicate Detection: 47 Duplicate Vendors Found</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Example: "Tech Solutions" vs "TechSolutions" vs "Tech Soln Pvt Ltd"</p>
+          <p style="margin-bottom: 0.5rem;"><span id="vendorStatus" style="background-color: #ef4444; padding: 0.25rem 0.75rem; border-radius: 4px; color: #fca5a5;">⚠️ Fraud Signal</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>DronaHQ Findings:</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ Same bank account, different names (suspected shell company)</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">→ Multiple overpayments detected: ₹12,50,000</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Action:</strong> Consolidated. Re-verification workflow triggered. Fraud case escalated.</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">💰 <em>Prevented loss: ₹12.5L. Data accuracy: 65% → 95%</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<script>
-  const runBtn = document.getElementById('runBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const statusText = document.getElementById('statusText');
-  const progressFill = document.getElementById('progressFill');
-  const progressLabel = document.getElementById('progressLabel');
-  const progressPercent = document.getElementById('progressPercent');
-  const progressMetaLeft = document.getElementById('progressMetaLeft');
-  const progressMetaRight = document.getElementById('progressMetaRight');
-  const logLines = document.getElementById('logLines');
-  const runTag = document.getElementById('runTag');
+  <!-- Slide 8: Sales Operations - Subscription Renewals -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; right: -100px; top: -50%; width: 450px; height: 450px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">Sales Operations: Subscription Renewals</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
+    </div>
+    <div class="fill-height" style="position: relative; z-index: 1;">
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">📈 Churn Prevention & Renewal Optimizer</h3>
+        <button id="simRenewal1" onclick="runRenewalDemo()" style="background-color: #38bdf8; color: #0f172a; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1rem;">Analyze Customer</button>
+        <div id="renewalResult1" style="font-size: 0.85rem; line-height: 1.6; display: none;">
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>Customer: DataCorp Analytics</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">Current Subscription: ₹50,00,000/year | Renewal in 30 days</p>
+          <p style="margin-bottom: 0.5rem;"><span id="churnRisk" style="background-color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 4px; color: #fcd34d;">⚠️ Churn Risk: 25%</span></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;"><strong>DronaHQ Intelligence:</strong></p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ Usage dropped 35% last quarter</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.25rem;">→ ROI analysis shows upsell opportunity to Premium</p>
+          <p style="color: #cbd5e1; margin-bottom: 0.5rem;">→ Competitor spotted in their tech stack</p>
+          <p style="color: #22c55e; margin-bottom: 0.5rem;"><strong>Personalized Action:</strong> Offer 15% renewal discount + Premium features. Route to CSM.</p>
+          <p style="font-size: 0.8rem; color: #a1a1a1;">✅ <em>Expected recovery: 92% (vs 80% baseline)</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  const lowRiskCountEl = document.getElementById('lowRiskCount');
-  const medRiskCountEl = document.getElementById('medRiskCount');
-  const highRiskCountEl = document.getElementById('highRiskCount');
+  <!-- Slide 9: Part 2 Intro - Building the Future -->
+  <section class="slide p-16 col center" style="background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #134e7b 100%); color: #f1f5f9; position: relative; overflow: hidden;">
+    <div style="position: absolute; bottom: -30%; left: -20%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1;">
+      <h1 class="text-5xl mb-6" style="color: #38bdf8; font-weight: 800; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);">PART 2</h1>
+      <h2 class="text-3xl mb-8" style="color: #cbd5e1; font-weight: 700; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;">How to Build These Agents</h2>
+      <p class="text-lg" style="color: #94a3b8; letter-spacing: 0.3px; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;">The complete platform stack that brings these visions to life</p>
+    </div>
+  </section>
 
-  const BATCH_SIZE = 10000;
-  let processed = 0;
-  let highRisk = 0;
-  let medRisk = 0;
-  let lowRisk = 0;
-  let running = false;
-  let currentTimeouts = [];
+  <!-- Slide 10: About DronaHQ Platform -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; top: 0; right: 0; width: 350px; height: 350px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-6" style="color: #38bdf8; margin-bottom: 0; flex: 1;">About DronaHQ: Your Complete Platform</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
+    </div>
+    <p class="text-lg mb-6" style="color: #cbd5e1; position: relative; z-index: 1;">DronaHQ is a unified platform for internal software, apps & agents:</p>
+    <div class="row gap-lg" style="position: relative; z-index: 1;">
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 1.5rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">Low-Code / Vibe-Code Toolkit</h3>
+        <p style="color: #cbd5e1; font-size: 0.95rem;">Build frontend apps, connect to any datasource, create internal tools in minutes</p>
+      </div>
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 1.5rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">No-Code Agent Builder</h3>
+        <p style="color: #cbd5e1; font-size: 0.95rem;">Build conversational or autonomous agents without technical overhead</p>
+      </div>
+    </div>
+    <p class="text-lg mt-6" style="color: #cbd5e1; position: relative; z-index: 1;"><strong>Ready Enterprise Layer:</strong> User Management • RBAC • Audit Trails • SSO • Security Built In</p>
+  </section>
 
-  function addLogLine(message, type = 'system') {
-    const line = document.createElement('div');
-    line.className = 'log-line';
+  <!-- Slide 11: Why Complete Tooling Stack Matters -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; bottom: 0; right: -50px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="mb-8" style="color: #38bdf8; margin-bottom: 0; flex: 1;">Why Complete Tooling Stack Matters</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
+    </div>
+    <div class="row gap-lg" style="position: relative; z-index: 1;">
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">🎯 Agent Designer</h3>
+        <p style="color: #cbd5e1;">Intuitive interface to compose, visualize & iterate agents without code</p>
+      </div>
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">🛡️ Guardrails</h3>
+        <p style="color: #cbd5e1;">Built-in safety constraints, approval workflows, and human-in-the-loop controls</p>
+      </div>
+      <div class="fill-width" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #f1f5f9; padding: 2rem; box-shadow: 0 12px 24px rgba(56, 189, 248, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; transition: all 0.3s ease;">
+        <h3 style="color: #38bdf8; margin-bottom: 1rem;">📊 Evals & Monitoring</h3>
+        <p style="color: #cbd5e1;">Real-time performance metrics, quality checks, and continuous improvement</p>
+      </div>
+    </div>
+  </section>
 
-    const timeSpan = document.createElement('span');
-    timeSpan.className = 'time';
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2, '0');
-    const mm = String(now.getMinutes()).padStart(2, '0');
-    const ss = String(now.getSeconds()).padStart(2, '0');
-    timeSpan.textContent = '[' + hh + ':' + mm + ':' + ss + ']';
+  <!-- Slide 12: Trusted by Leading Companies -->
+  <section class="slide p-16 col" style="background-color: #0f172a; color: #f1f5f9; position: relative;">
+    <div style="position: absolute; top: -30%; left: -15%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(56, 189, 248, 0.04) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 class="text-center mb-8" style="color: #38bdf8; margin-bottom: 0; flex: 1;">Trusted by Leading Companies</h2>
+      <img src="https://www.dronahq.com/wp-content/uploads/2023/02/logoWhite.png" alt="DronaHQ" style="height: 28px; object-fit: contain; opacity: 0.5;">
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2.5rem; align-items: center; justify-items: center; height: 100%; padding: 2rem 0; position: relative; z-index: 1;">
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/clevertap-removebg-preview-2.png" alt="CleverTap" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/medianet-removebg-preview-1.png" alt="Media.net" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/purplle-removebg-preview-1.png" alt="Purplle" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/JioSaavn-removebg-preview-1.png" alt="JioSaavn" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/taskrabbit-removebg-preview-1.png" alt="TaskRabbit" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/orix-removebg-preview-1.png" alt="ORIX" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/lendingclub-removebg-preview-1.png" alt="LendingClub" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/fourier-removebg-preview-1.png" alt="Fourier" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+      <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: 80px;">
+        <img src="https://www.dronahq.com/wp-content/uploads/2024/01/sundaycool-removebg-preview-1.png" alt="Sunday Cool" style="height: 50px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.9;">
+      </div>
+    </div>
+    <p style="text-align: center; color: #94a3b8; font-size: 0.9rem; margin-top: 2rem;">Built by enterprises who trust DronaHQ to power their operations</p>
+  </section>
 
-    const tagSpan = document.createElement('span');
-    let tagClass = 'tag-system';
-    let tagText = 'SYSTEM';
-    if (type === 'kyc') {
-      tagClass = 'tag-kyc';
-      tagText = 'KYC';
-    } else if (type === 'risk') {
-      tagClass = 'tag-risk';
-      tagText = 'RISK';
-    } else if (type === 'ok') {
-      tagClass = 'tag-ok';
-      tagText = 'OK';
+  <!-- Slide 13: Call to Action -->
+  <section class="slide p-16 col center" style="background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #134e7b 100%); color: #f1f5f9; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -40%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1;">
+      <h2 class="text-4xl mb-6" style="color: #38bdf8; font-weight: 800; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);">Ready to Transform Operations?</h2>
+      <p class="text-lg mb-8" style="color: #cbd5e1; font-weight: 600; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;">3 Months Complimentary Access</p>
+      <p class="text-sm" style="color: #94a3b8; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;">For operations leaders at fast-growing B2C tech companies</p>
+      <p class="text-sm mt-8" style="color: #94a3b8; letter-spacing: 0.3px; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;">Build your first intelligent agent. Today.</p>
+    </div>
+  </section>
+
+  <!-- Slide 14: Thank You -->
+  <section class="slide p-16 col center" style="background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #134e7b 100%); color: #f1f5f9; position: relative; overflow: hidden;">
+    <div style="position: absolute; bottom: -40%; left: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: absolute; top: 50%; right: -30%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+    <div style="position: relative; z-index: 1;">
+      <h2 class="text-5xl mb-6" style="color: #38bdf8; font-weight: 800; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);">Thank You</h2>
+      <p class="text-xl" style="color: #cbd5e1; font-weight: 600; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;">Questions?</p>
+      <p class="text-sm mt-8" style="color: #94a3b8; letter-spacing: 0.3px; animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;">Let's explore how agentic AI can unlock your operations potential</p>
+    </div>
+  </section>
+
+  <script>
+    // Invoice Demo
+    function runInvoiceDemo() {
+      const result = document.getElementById('invoiceResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simInvoice1').textContent = 'Analyzing...';
+      document.getElementById('simInvoice1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simInvoice1').textContent = 'Analyze Invoice';
+        document.getElementById('simInvoice1').disabled = false;
+      }, 1500);
     }
-    tagSpan.className = 'tag ' + tagClass;
-    tagSpan.textContent = tagText;
 
-    const msgSpan = document.createElement('span');
-    msgSpan.textContent = ' ' + message;
-
-    line.appendChild(timeSpan);
-    line.appendChild(tagSpan);
-    line.appendChild(msgSpan);
-    logLines.appendChild(line);
-    logLines.scrollTop = logLines.scrollHeight;
-  }
-
-  function resetDemo() {
-    running = false;
-    processed = 0;
-    highRisk = 0;
-    medRisk = 0;
-    lowRisk = 0;
-
-    currentTimeouts.forEach(clearTimeout);
-    currentTimeouts = [];
-
-    progressFill.style.width = '0%';
-    progressLabel.textContent = 'No batch running';
-    progressPercent.textContent = '0%';
-    progressMetaLeft.textContent = 'Customers processed: 0 / ' + BATCH_SIZE.toLocaleString();
-    progressMetaRight.textContent = 'High‑risk flagged for review: 0';
-    lowRiskCountEl.textContent = '0';
-    medRiskCountEl.textContent = '0';
-    highRiskCountEl.textContent = '0';
-
-    runTag.textContent = 'Status: Idle';
-    statusText.textContent = 'Idle · Press “Run KYC Agent” to start a full batch.';
-    logLines.innerHTML = '';
-  }
-
-  function simulateRun() {
-    if (running) return;
-    resetDemo();
-    running = true;
-    runTag.textContent = 'Status: Running';
-    statusText.textContent = 'Running batch… agent is fetching data, screening, and updating records.';
-
-    addLogLine('Launching KYC batch job for 10,000 retail & SME customers.', 'system');
-    addLogLine('Connecting to core banking, CRM, and document archive…', 'system');
-    addLogLine('Pulling latest customer profile snapshots and historical docs…', 'kyc');
-
-    currentTimeouts.push(setTimeout(() => {
-      addLogLine('Starting identity verification and address checks in parallel.', 'kyc');
-      addLogLine('Streaming customer IDs into sanctions & PEP screening engine.', 'risk');
-    }, 800));
-
-    currentTimeouts.push(setTimeout(() => {
-      addLogLine('Enabling human‑in‑the‑loop mode for high‑risk / PEP candidates.', 'risk');
-    }, 1600));
-
-    const chunks = 20;
-    const customersPerChunk = BATCH_SIZE / chunks;
-
-    for (let i = 1; i <= chunks; i++) {
-      currentTimeouts.push(setTimeout(() => {
-        if (!running) return;
-
-        const isFinal = i === chunks;
-        processed = Math.min(BATCH_SIZE, processed + customersPerChunk);
-
-        const chunkLow = Math.round(customersPerChunk * 0.86);
-        const chunkMed = Math.round(customersPerChunk * 0.12);
-        const chunkHigh = Math.round(customersPerChunk * 0.02);
-
-        lowRisk += chunkLow;
-        medRisk += chunkMed;
-        highRisk += chunkHigh;
-
-        const pct = Math.round((processed / BATCH_SIZE) * 100);
-        progressFill.style.width = pct + '%';
-        progressPercent.textContent = pct + '%';
-        progressLabel.textContent = isFinal ? 'Batch completed' : 'Processing customer batch…';
-
-        progressMetaLeft.textContent = 'Customers processed: ' +
-          processed.toLocaleString() + ' / ' + BATCH_SIZE.toLocaleString();
-        progressMetaRight.textContent = 'High‑risk flagged for review: ' + highRisk.toLocaleString();
-        lowRiskCountEl.textContent = lowRisk.toLocaleString();
-        medRiskCountEl.textContent = medRisk.toLocaleString();
-        highRiskCountEl.textContent = highRisk.toLocaleString();
-
-        const sampleCustomerId = 'CUST-' + String(100000 + i * 37);
-        if (i === 3) {
-          addLogLine('OCR complete for 2,000+ identity documents, extracting names, DOB, and addresses.', 'kyc');
-        } else if (i === 6) {
-          addLogLine('Found inconsistent address data for subset of SME customers — normalizing and re‑checking.', 'kyc');
-        } else if (i === 9) {
-          addLogLine('PEP list updated mid‑run — re‑screening impacted entities automatically.', 'risk');
-        } else if (i === 13) {
-          addLogLine('Sanctions engine returned potential match for ' + sampleCustomerId + ' — escalating to human reviewer.', 'risk');
-        } else if (i === 16) {
-          addLogLine('Auto‑closing low‑risk cases and writing approvals back to core banking system.', 'ok');
-        } else if (i === 19) {
-          addLogLine('Producing full audit trail: who was screened, which lists, timestamps, and decision rationale.', 'system');
-        }
-
-        if (isFinal) {
-          running = false;
-          runTag.textContent = 'Status: Completed';
-          statusText.textContent = 'Batch completed · Low‑risk customers auto‑approved, high‑risk routed to analysts.';
-          addLogLine('Batch complete: 10,000 customers processed in under 10 simulated minutes.', 'ok');
-          addLogLine('9,000+ low‑risk customers auto‑approved; high‑risk cases routed with full context.', 'ok');
-        }
-      }, 2200 + i * 260));
+    // Discount Demo
+    function runDiscountDemo() {
+      const result = document.getElementById('discountResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simDiscount1').textContent = 'Optimizing...';
+      document.getElementById('simDiscount1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simDiscount1').textContent = 'Optimize Payment';
+        document.getElementById('simDiscount1').disabled = false;
+      }, 1500);
     }
-  }
 
-  runBtn.addEventListener('click', simulateRun);
-  resetBtn.addEventListener('click', resetDemo);
-</script>
+    // Quote Demo
+    function runQuoteDemo() {
+      const result = document.getElementById('quoteResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simQuote1').textContent = 'Processing...';
+      document.getElementById('simQuote1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simQuote1').textContent = 'Process Quote';
+        document.getElementById('simQuote1').disabled = false;
+      }, 1500);
+    }
+
+    // Collections Demo
+    function runCollectionsDemo() {
+      const result = document.getElementById('collectionsResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simCollections1').textContent = 'Analyzing...';
+      document.getElementById('simCollections1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simCollections1').textContent = 'Analyze Account';
+        document.getElementById('simCollections1').disabled = false;
+      }, 1500);
+    }
+
+    // Payroll Demo
+    function runPayrollDemo() {
+      const result = document.getElementById('payrollResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simPayroll1').textContent = 'Calculating...';
+      document.getElementById('simPayroll1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simPayroll1').textContent = 'Calculate Deductions';
+        document.getElementById('simPayroll1').disabled = false;
+      }, 1500);
+    }
+
+    // Leave Demo
+    function runLeaveDemo() {
+      const result = document.getElementById('leaveResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simLeave1').textContent = 'Evaluating...';
+      document.getElementById('simLeave1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simLeave1').textContent = 'Evaluate Request';
+        document.getElementById('simLeave1').disabled = false;
+      }, 1500);
+    }
+
+    // Advance Demo
+    function runAdvanceDemo() {
+      const result = document.getElementById('advanceResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simAdvance1').textContent = 'Processing...';
+      document.getElementById('simAdvance1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simAdvance1').textContent = 'Process Request';
+        document.getElementById('simAdvance1').disabled = false;
+      }, 1500);
+    }
+
+    // Audit Demo
+    function runAuditDemo() {
+      const result = document.getElementById('auditResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simAudit1').textContent = 'Generating...';
+      document.getElementById('simAudit1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simAudit1').textContent = 'Generate Report';
+        document.getElementById('simAudit1').disabled = false;
+      }, 1500);
+    }
+
+    // Vendor Demo
+    function runVendorDemo() {
+      const result = document.getElementById('vendorResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simVendor1').textContent = 'Scanning...';
+      document.getElementById('simVendor1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simVendor1').textContent = 'Scan Master Data';
+        document.getElementById('simVendor1').disabled = false;
+      }, 1500);
+    }
+
+    // Renewal Demo
+    function runRenewalDemo() {
+      const result = document.getElementById('renewalResult1');
+      result.style.display = result.style.display === 'none' ? 'block' : 'block';
+      document.getElementById('simRenewal1').textContent = 'Analyzing...';
+      document.getElementById('simRenewal1').disabled = true;
+      setTimeout(() => {
+        document.getElementById('simRenewal1').textContent = 'Analyze Customer';
+        document.getElementById('simRenewal1').disabled = false;
+      }, 1500);
+    }
+  </script>
 </body>
 </html>
